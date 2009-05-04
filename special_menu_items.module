@@ -1,0 +1,121 @@
+<?php 
+//$Id$
+
+/**
+ * @file
+ *  Module to enable placeholder or separator menu items.Placeholder is a menu item which is 
+ *  actually not a link. Something like this is useful with drop down menus where we want to 
+ *  have a parent link which is actually not linking to a page but which is just acting as a 
+ *  parent and grouping some children below it.
+ *  A separator menu item is something like "-------" which is also not linking anywhere but 
+ *  merely a mean to structure menus.
+ *  This is how the module work:
+ *  - User can create a new menu item and place either "nolink" or "separator" to the URL 
+ *  field, without quotes.
+ *  - When the menu is rendered the "nolink" item will be rendered similar to a normal menu link 
+ *  item but there will be no link just the title.
+ *  - When the menu is rendered the "separator" item will be rendered to an item which is no link
+ *  and the title will always be "-------".
+ * 
+ *  Written by Tamir Al Zoubi and Karim Djelid - Servit Open Source Solutions - www.servit.ch
+ */
+
+/**
+*Implementation of hook_menu()
+*/
+function special_menu_items_menu() {
+  
+  //Add nolink and separator as a dummy pages.
+  $noLink    = 'nolink';
+  $separator = 'separator';
+  
+  $items[$noLink] = array(
+  'page callback' => 'special_menu_items_dummy',
+  'access callback'=>TRUE, 
+  'type' => MENU_CALLBACK,
+  );
+  
+  $items[$separator] = array(
+  'page callback' => 'special_menu_items_dummy',
+  'access callback'=>TRUE,
+  'type' => MENU_CALLBACK,
+  );
+  
+ return $items;
+}
+
+
+/**
+ * Page callback
+*/
+function special_menu_items_dummy()
+{
+  $output = 'This is a dummy page used for placeholder and separator menu items.
+  You should not be able to see this page';
+  return t($output);
+}
+
+
+/**
+ * Override of theme_menu_item_link()
+ * This function will render link if it is "nolink" or "separator". Otherwise it will call originally 
+ * overwriten menu_item_link function. 
+ */
+function special_menu_itemsoverwrite_menu_item_link($link) {   
+  //return theme('special_menu_items_menu_item_link', $link);    
+  $theme_overwrite=variable_get('oldtheme_menu_item_link');
+  
+  if (empty($link['localized_options'])) {
+    $link['localized_options'] = array();
+  }
+  
+  if(strpos($link['href'], 'nolink') === 0) {
+    // Allow if the menu link is nolink:
+    $link['localized_options']['html'] = TRUE;
+    //Return HTML span instead of a link
+    return '<span>'.$link['title'].'</span>';
+  }
+  else if(strpos($link['href'], 'separator') === 0) {
+    // Allow if the menu link is seperator
+    $link['localized_options']['html'] = TRUE;
+    //Return -------- to serve as a separator
+    return '<span>--------</span>';
+  }
+  else
+     return call_user_func($theme_overwrite, $link);
+}
+
+
+/**
+ * Implementation of hook_theme_registry_alter()
+ * We replace theme_menu_item_link with our own function.
+ */
+function special_menu_items_theme_registry_alter(&$theme_registry) {
+  
+  // Save previous value from registry in case another theme overwrites menu_item_link
+  $theme_overwrite = $theme_registry['menu_item_link']['function']; 
+  
+  //Store the value
+  variable_set('oldtheme_menu_item_link', $theme_overwrite);
+  
+  // Replace theme_menu_item_link with our special_menu_itemsoverwrite_menu_item_link. 
+  $theme_registry['menu_item_link']['function'] = 'special_menu_itemsoverwrite_menu_item_link'; 
+}
+
+/**
+ * Implementation of hook_form_alter()
+ * Description changed, added nolink and separator as path types.
+ */
+function special_menu_items_form_alter(&$form, $form_state, $form_id) {
+ 
+  if ($form_id=='menu_edit_item') {
+  $form['menu']['link_path'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Path'),
+      '#default_value' => $path,
+      '#description' => t('The path this menu item links to. This can be an internal Drupal path such as %add-node or an external URL such as %drupal. Enter %front to link to the front page, enter "nolink" to generate non-linkable item, enter "separator" to generate separator item.', array('%front' => '<front>', '%add-node' => 'node/add', '%drupal' => 'http://drupal.org')),
+      '#required' => TRUE,
+    );
+  }
+  
+}

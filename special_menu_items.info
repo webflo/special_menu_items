@@ -1,0 +1,5 @@
+; $Id$
+name = Special menu items
+description = Allow users to add placeholder and/or separator menu items.
+dependencies[] = menu
+core = 6.x
