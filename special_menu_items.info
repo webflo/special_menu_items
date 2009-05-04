@@ -1,6 +1,6 @@
 ; $Id$
 name = Special menu items
-description = Allow users to add placeholder and/or separator menu items.
-dependencies[] = menu
-version = "6.x-1.0"
+description = "Allow users to add placeholder and/or separator menu items."
 core = 6.x
+dependencies[] = menu
+
