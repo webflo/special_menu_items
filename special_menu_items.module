@@ -63,7 +63,7 @@ function special_menu_items_dummy()
  */
 function special_menu_itemsoverwrite_menu_item_link($link) {   
   //return theme('special_menu_items_menu_item_link', $link);    
-  $theme_overwrite=variable_get('oldtheme_menu_item_link');
+  $theme_overwrite=variable_get('oldtheme_menu_item_link',null);
   
   if (empty($link['localized_options'])) {
     $link['localized_options'] = array();
