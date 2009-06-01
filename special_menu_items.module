@@ -9,13 +9,6 @@
  *  parent and grouping some children below it.
  *  A separator menu item is something like "-------" which is also not linking anywhere but 
  *  merely a mean to structure menus.
- *  This is how the module work:
- *  - User can create a new menu item and place either "nolink" or "separator" to the URL 
- *  field, without quotes.
- *  - When the menu is rendered the "nolink" item will be rendered similar to a normal menu link 
- *  item but there will be no link just the title.
- *  - When the menu is rendered the "separator" item will be rendered to an item which is no link
- *  and the title will always be "-------".
  * 
  *  Written by Tamir Al Zoubi and Karim Djelid - Servit Open Source Solutions - www.servit.ch
  */
@@ -41,6 +34,15 @@ function special_menu_items_menu() {
   'type' => MENU_CALLBACK,
   );
   
+  $items['admin/settings/special_menu_items'] = array(
+    'title' => 'Special Menu Items',
+    'description' => 'Configure Special Menu Items.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('special_menu_items_admin_settings_form'),
+    'access arguments' => array('administer site configuration'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+  
  return $items;
 }
 
@@ -62,7 +64,6 @@ function special_menu_items_dummy()
  * overwriten menu_item_link function. 
  */
 function special_menu_itemsoverwrite_menu_item_link($link) {   
-  //return theme('special_menu_items_menu_item_link', $link);    
   $theme_overwrite=variable_get('oldtheme_menu_item_link',null);
   
   if (empty($link['localized_options'])) {
@@ -72,19 +73,60 @@ function special_menu_itemsoverwrite_menu_item_link($link) {
   if(strpos($link['href'], 'nolink') === 0) {
     // Allow if the menu link is nolink:
     $link['localized_options']['html'] = TRUE;
+    
+    //Retrieve tag for nolink menu item
+    $tag=variable_get('special_menu_items_nolink_tag','<span>');
+    
+    //Set class for nolink
+    $css='nolink';
+ 
     //Return HTML span instead of a link
-    return '<span>'.$link['title'].'</span>';
+    return render_menu_item($tag,$link['title'],$css);
   }
   else if(strpos($link['href'], 'separator') === 0) {
     // Allow if the menu link is seperator
     $link['localized_options']['html'] = TRUE;
-    //Return -------- to serve as a separator
-    return '<span>--------</span>';
+    
+    //Retrieve tags and value for seperator menu item
+    $tag=variable_get('special_menu_items_seperator_tag','<span>');
+    $value=variable_get('special_menu_items_seperator_value','--------');
+    
+    //Set class for seperator
+    $css='seperator';
+
+    //Return separator menu item
+    return render_menu_item($tag,$value,$css);
   }
   else
      return call_user_func($theme_overwrite, $link);
 }
 
+/**
+ * Returns menu item rendered.
+ */
+function render_menu_item($tag,$value,$css=null){
+$length=strlen($tag);
+   
+    //Validate the tags
+      if($tag[0]=='<' && $tag[$length-1]=='>'){
+        $closingtag=str_replace('<','</',$tag);
+        if($css)
+            $tag=str_replace('>',' class="'.$css.'">',$tag);        
+      }
+      else{
+        if($css){       
+        $classtag='<'.$tag.' class="'.$css.'">';
+        $tag='<'.$tag.'>';
+        $closingtag=str_replace('<','</',$tag);
+        $tag=$classtag;
+        }
+        else{
+        $tag='<'.$tag.'>';
+        $closingtag=str_replace('<','</',$tag);
+        }
+      }  
+  return $tag.$value.$closingtag;
+}
 
 /**
  * Implementation of hook_theme_registry_alter()
@@ -99,7 +141,8 @@ function special_menu_items_theme_registry_alter(&$theme_registry) {
   variable_set('oldtheme_menu_item_link', $theme_overwrite);
   
   // Replace theme_menu_item_link with our special_menu_itemsoverwrite_menu_item_link. 
-  $theme_registry['menu_item_link']['function'] = 'special_menu_itemsoverwrite_menu_item_link'; 
+   $theme_registry['menu_item_link']['function'] = 'special_menu_itemsoverwrite_menu_item_link';
+   $theme_registry['menu_item_link']['theme paths'] = 'sites/all/modules/special_menu_items';
 }
 
 /**
@@ -110,6 +153,58 @@ function special_menu_items_form_alter(&$form, $form_state, $form_id) {
  
   if ($form_id=='menu_edit_item') {
   $form['menu']['link_path']['#description']=  t('The path this menu item links to. This can be an internal Drupal path such as %add-node or an external URL such as %drupal. Enter %front to link to the front page, enter "nolink" to generate non-linkable item, enter "separator" to generate separator item.', array('%front' => '<front>', '%add-node' => 'node/add', '%drupal' => 'http://drupal.org')); 
+  } 
+}
+
+/**
+ * Implementation of hook_init().
+ */
+function special_menu_items_init() {
+
+  //Make breadcrumb of nolink menu item nonlinkable.
+  $breadcrumb = drupal_get_breadcrumb();
+
+  foreach($breadcrumb as $key=>$crumb){
+    
+    if(strlen(strstr($crumb,'nolink'))>0) {
+      $crumb=strip_tags($crumb);
+      $tag=variable_get('special_menu_items_nolink_tag','<span>');
+      $breadcrumb[$key]=render_menu_item($tag,$crumb);      
+    }
   }
+  drupal_set_breadcrumb($breadcrumb);
+}
+
+/**
+ * Special Menu Items admin settings form.
+ *
+ * @return
+ * The settings form used by Special Menu Items.
+ */
+function special_menu_items_admin_settings_form() { 
+  $form['special_menu_items_nolink_tag'] = array(
+    '#type' => 'textfield',
+    '#title' => t('HTML tag for "nolink"'),
+    '#description' => t('By default, Special Menu Items will use a span tag for the nolink menu item. Here you can specify your own tag.'),
+    '#default_value' => variable_get('special_menu_items_nolink_tag', '<span>'),
   
+  );
+  
+  $form['special_menu_items_seperator_tag'] = array(
+    '#type' => 'textfield',
+    '#title' => t('HTML tag for "seperator"'),
+    '#description' => t('By default, Special Menu Items will use a span tag for the seperator menu item. Here you can specify your own tag.'),
+    '#default_value' => variable_get('special_menu_items_seperator_tag', '<span>'),
+  
+  );
+  
+    $form['special_menu_items_seperator_value'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Value to be displayed for the "seperator"'),
+    '#description' => t('By default, Special Menu Items will use a "--------" value for the seperator. You can specify your own value for the seperator.'),
+    '#default_value' => variable_get('special_menu_items_seperator_value', '--------'),
+  
+  );
+
+  return system_settings_form($form);
 }
