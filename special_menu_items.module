@@ -152,7 +152,19 @@ function special_menu_items_theme_registry_alter(&$theme_registry) {
 function special_menu_items_form_alter(&$form, $form_state, $form_id) {
  
   if ($form_id=='menu_edit_item') {
-  $form['menu']['link_path']['#description']=  t('The path this menu item links to. This can be an internal Drupal path such as %add-node or an external URL such as %drupal. Enter %front to link to the front page, enter "nolink" to generate non-linkable item, enter "separator" to generate separator item.', array('%front' => '<front>', '%add-node' => 'node/add', '%drupal' => 'http://drupal.org')); 
+    $default_value=$form['menu']['link_path']['#default_value'];
+    
+      if(preg_match('/^nolink\/[0-9]+$/',$default_value))
+      {
+        $default_value='nolink';
+      }
+      else if(preg_match("/^separator\/[0-9]+$/",$default_value))
+      {
+        $default_value='separator';
+      }
+  
+    $form['menu']['link_path']['#default_value'] = $default_value;
+    $form['menu']['link_path']['#description']=  t('The path this menu item links to. This can be an internal Drupal path such as %add-node or an external URL such as %drupal. Enter %front to link to the front page, enter "nolink" to generate non-linkable item, enter "separator" to generate separator item.', array('%front' => '<front>', '%add-node' => 'node/add', '%drupal' => 'http://drupal.org')); 
   } 
 }
 
@@ -207,4 +219,13 @@ function special_menu_items_admin_settings_form() {
   );
 
   return system_settings_form($form);
+}
+
+function special_menu_items_footer() {
+  if(strpos($_GET['q'],'admin/build/menu-customize')!== false)
+  {
+    //do all links in db
+    db_query("UPDATE menu_links SET link_path=CONCAT(CONCAT(link_path,'/'),mlid) WHERE (link_path='nolink' OR link_path='separator') AND hidden!=-1");
+    cache_clear_all();
+  }
 }
