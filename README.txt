@@ -36,4 +36,5 @@ Just overwrite (or replace) the older special_menu_items folder with the newer v
 
 Contact
 -------
-This module is maintained by Tamir Zoubi - zoubi@servit.ch.   
+This module is developed by Servit Open Source Solutions - http://servit.ch
+and maintained by Khaled Zaidan - zaidan@servit.ch
