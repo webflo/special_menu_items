@@ -27,8 +27,8 @@ Features
 Installation
 ------------
 1. Copy special_menu_items folder to your sites/all/modules directory.
-2. At Administer -> Site building -> Modules (admin/build/modules) enable the module.
-3. Configure the module settings at Administer -> Site configuration -> Special Menu Items (admin/settings/special_menu_items).
+2. At Administer -> Site building -> Modules (admin/modules) enable the module.
+3. Configure the module settings at Administer -> Site configuration -> Special Menu Items (admin/config/system/special_menu_items).
 
 Upgrading
 ---------
