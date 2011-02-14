@@ -1,18 +1,12 @@
 <?php
-//$Id:
-/**
- * @file area_banner.install
- * Contains uninstall for functions used by special_menu_items
- */
-
+// $Id$
 
 /**
  * Implementation of hook_uninstall().
  */
 function special_menu_items_uninstall() {
-  variable_del('oldtheme_menu_item_link'); 
-  variable_del('special_menu_items_nolink_tag'); 
-  variable_del('special_menu_items_seperator_tag'); 
-  variable_del('special_menu_items_seperator_value'); 
-  
+  variable_del('special_menu_items_nolink_tag');
+  variable_del('special_menu_items_seperator_tag');
+  variable_del('special_menu_items_seperator_value');
+  variable_del('special_menu_items_menu_item_link');
 }
