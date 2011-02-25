@@ -1,4 +1,3 @@
-; $Id$
 name = Special menu items
 description = "Allow users to add placeholder and/or separator menu items."
 core = 7.x
