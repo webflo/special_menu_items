@@ -17,13 +17,13 @@
 */
 function special_menu_items_menu() {
   $items['nolink'] = array(
-    'page callback' => '_special_menu_items_dummy',
+    'page callback' => 'special_menu_items_dummy',
     'access callback' => TRUE, 
     'type' => MENU_CALLBACK,
   );
   
   $items['separator'] = array(
-    'page callback' => '_special_menu_items_dummy',
+    'page callback' => 'special_menu_items_dummy',
     'access callback' => TRUE,
     'type' => MENU_CALLBACK,
   );
@@ -44,16 +44,15 @@ function special_menu_items_menu() {
 /**
  * Page callback
 */
-function _special_menu_items_dummy() {
+function special_menu_items_dummy() {
   drupal_not_found();
 }
 
 function special_menu_items_menu_link(array $variables) {
-  $element = $variables['element'];
-  $sub_menu = '';
-
-  // Add a class to the list item
-  if (in_array($element['#href'], array('nolink', 'separator'))) {
+  // Find special menu link
+  if (in_array($variables['element']['#href'], array('nolink', 'separator'))) {
+    $element = $variables['element'];
+    $sub_menu = '';
     $element['#attributes']['class'][] = $element['#href'];
     
     if ($element['#below']) {
@@ -74,7 +73,7 @@ function special_menu_items_menu_link(array $variables) {
     
     return '<li' . drupal_attributes($element['#attributes']) . '>' . $output . $sub_menu . "</li>\n";
   }
-  // Call the original themeing function.
+  // Call the original theme function for normal menu link.
   return theme('menu_link_default',$variables);
 } 
 
