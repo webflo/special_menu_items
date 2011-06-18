@@ -17,13 +17,13 @@
 */
 function special_menu_items_menu() {
   $items['nolink'] = array(
-    'page callback' => 'special_menu_items_dummy',
+    'page callback' => '_special_menu_items_dummy',
     'access callback' => TRUE, 
     'type' => MENU_CALLBACK,
   );
   
   $items['separator'] = array(
-    'page callback' => 'special_menu_items_dummy',
+    'page callback' => '_special_menu_items_dummy',
     'access callback' => TRUE,
     'type' => MENU_CALLBACK,
   );
@@ -44,8 +44,8 @@ function special_menu_items_menu() {
 /**
  * Page callback
 */
-function special_menu_items_dummy() {
-  return t('This is a dummy page used for placeholder and separator menu items. You should not be able to see this page');
+function _special_menu_items_dummy() {
+  drupal_not_found();
 }
 
 function special_menu_items_menu_link(array $variables) {
