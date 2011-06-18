@@ -17,13 +17,13 @@
 */
 function special_menu_items_menu() {
   $items['nolink'] = array(
-    'page callback' => '_special_menu_items_dummy',
+    'page callback' => 'drupal_not_found',
     'access callback' => TRUE, 
     'type' => MENU_CALLBACK,
   );
   
   $items['separator'] = array(
-    'page callback' => '_special_menu_items_dummy',
+    'page callback' => 'drupal_not_found',
     'access callback' => TRUE,
     'type' => MENU_CALLBACK,
   );
@@ -40,13 +40,6 @@ function special_menu_items_menu() {
  return $items;
 }
 
-
-/**
- * Page callback
-*/
-function _special_menu_items_dummy() {
-  drupal_not_found();
-}
 
 function special_menu_items_menu_link(array $variables) {
   // Find special menu link
