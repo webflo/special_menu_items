@@ -117,10 +117,13 @@ function special_menu_items_preprocess_page(&$vars, $hook) {
             $tag = variable_get('special_menu_items_nolink_tag', '<span>');
             $title = $vars[$menu][$key]['title'];
             $vars[$menu][$key]['title'] = special_menu_items_render_menu_item($tag, $title);
+            $vars[$menu][$key]['attributes']['class'][] = 'nolink';
             break;
 
           case '<separator>':
             $vars[$menu][$key]['title'] = variable_get('special_menu_items_separator_value', '<hr>');
+            $vars[$menu][$key]['attributes']['class'][] = 'separator';
+
             break;
         }
         //render in HTML
