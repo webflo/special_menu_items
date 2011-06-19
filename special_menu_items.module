@@ -21,11 +21,6 @@ function special_menu_items_menu() {
     'access callback' => TRUE, 
     'type' => MENU_CALLBACK,
   );
-    $items['nolink'] = array(
-    'page callback' => 'drupal_not_found',
-    'access callback' => TRUE, 
-    'type' => MENU_CALLBACK,
-  );
   
   $items['<separator>'] = array(
     'page callback' => 'drupal_not_found',
