@@ -125,6 +125,7 @@ function special_menu_items_preprocess_page(&$vars, $hook) {
         }
         //render in HTML
         $vars[$menu][$key]['html'] = TRUE;
+        unset($vars[$menu][$key]['attributes']['title']);
         unset($vars[$menu][$key]['href']);
       }
     }
