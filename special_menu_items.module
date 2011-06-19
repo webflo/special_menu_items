@@ -171,6 +171,33 @@ function special_menu_items_render_menu_item($tag, $value, $css = NULL) {
 
 
 /**
+ * Alter the theme's primary and secondary links.
+ *
+ */
+function special_menu_items_preprocess_page(&$vars, $hook) {
+  foreach (array('main_menu', 'secondary_menu') as $menu) {
+    foreach (array_keys($vars[$menu]) as $key) {
+      if (in_array($vars[$menu][$key]['href'], array('nolink', 'separator'))) {
+        switch ($vars[$menu][$key]['href']) {
+          case 'nolink':
+            $tag = variable_get('special_menu_items_nolink_tag', '<span>');
+            $title = $vars[$menu][$key]['title'];
+            $vars[$menu][$key]['title'] = special_menu_items_render_menu_item($tag, $title);
+            break;
+
+          case 'separator':
+            $vars[$menu][$key]['title'] = variable_get('special_menu_items_separator_value', '<hr>');
+            break;
+        }
+        //render in HTML
+        $vars[$menu][$key]['html'] = TRUE;
+        unset($vars[$menu][$key]['href']);
+      }
+    }
+  }
+}
+
+/**
  * Implementation of hook_theme_registry_alter()
  * We replace theme_menu_item_link with our own function.
  */
