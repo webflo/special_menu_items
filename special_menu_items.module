@@ -40,6 +40,11 @@ function special_menu_items_menu() {
  return $items;
 }
 
+/**
+ * Override of theme_menu_item_link()
+ * This function will render link if it is "nolink" or "separator". Otherwise it will call originally 
+ * overwriten menu_item_link function. 
+ */
 
 function special_menu_items_menu_link(array $variables) {
   // Find special menu link
@@ -68,79 +73,8 @@ function special_menu_items_menu_link(array $variables) {
   }
   // Call the original theme function for normal menu link.
   return theme('menu_link_default',$variables);
-} 
-
-/**
- * Override of theme_menu_item()
- * This function will add a class to separator and nolink <li> tags for easier styling
- * Generate the HTML output for a menu item and submenu.
- *
- * @ingroup themeable
- */
-/*
-function special_menu_itemsoverwrite_menu_item($link, $has_children, $menu = '', $in_active_trail = FALSE, $extra_class = NULL) {
-  $class = ($menu ? 'expanded' : ($has_children ? 'collapsed' : 'leaf'));
-  if (!empty($extra_class)) {
-    $class .= ' ' . $extra_class;
-  }
-  if ($in_active_trail) {
-    $class .= ' active-trail';
-  }
-  
-  if (strpos($link, 'class="nolink"') !== FALSE) {
-    $class .= ' nolink-li';
-  }
-  if (strpos($link, 'class="separator"') !== FALSE) {
-    $class .=' separator-li';
-  }
-  return '<li class="' . $class . '">' . $link . $menu . "</li>\n";
 }
-*/
 
-/**
- * Override of theme_menu_item_link()
- * This function will render link if it is "nolink" or "separator". Otherwise it will call originally 
- * overwriten menu_item_link function. 
- */
-/*
-function special_menu_itemsoverwrite_menu_item_link($link) {   
-  $theme_overwrite = variable_get('oldtheme_menu_item_link', NULL);
-  
-  if (empty($link['localized_options'])) {
-    $link['localized_options'] = array();
-  }
-  
-  if (strpos($link['href'], 'nolink') === 0) {
-    // Allow if the menu link is nolink:
-    $link['localized_options']['html'] = TRUE;
-    
-    //Retrieve tag for nolink menu item
-    $tag = variable_get('special_menu_items_nolink_tag', '<span>');
-    
-    //Set class for nolink
-    $css = 'nolink';
- 
-    //Return HTML span instead of a link
-    return render_menu_item($tag, $link['title'], $css);
-  }
-  elseif (strpos($link['href'], 'separator') === 0) {
-    // Allow if the menu link is separator
-    $link['localized_options']['html'] = TRUE;
-    
-    //Retrieve tags and value for separator menu item
-    $tag=variable_get('special_menu_items_separator_tag', '<span>');
-    $value=variable_get('special_menu_items_separator_value', '<hr>');
-    
-    //Set class for separator
-    $css = 'separator';
-
-    //Return separator menu item
-    return render_menu_item($tag, $value, $css);
-  }
-  else
-    return call_user_func($theme_overwrite, $link);
-}
-*/
 
 /**
  * Returns menu item rendered.
@@ -221,7 +155,7 @@ function special_menu_items_form_menu_edit_item_alter(&$form, &$form_state) {
   }
 
   $form['link_path']['#default_value'] = $default_value;
-  $form['link_path']['#description']=  t('The path this menu item links to. This can be an internal Drupal path such as %add-node or an external URL such as %drupal. Enter %front to link to the front page, enter "nolink" to generate non-linkable item, enter "separator" to generate separator item.', array('%front' => '<front>', '%add-node' => 'node/add', '%drupal' => 'http://drupal.org')); 
+  $form['link_path']['#description'] .=  t('Enter "nolink" to generate non-linkable item, enter "separator" to generate separator item.', array('%nolink' => 'nolink', '%add-node' => 'node/add', '%drupal' => 'http://drupal.org')); 
 }
 
 /**
