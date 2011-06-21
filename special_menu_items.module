@@ -51,7 +51,6 @@ function special_menu_items_menu_link(array $variables) {
   if (in_array($variables['element']['#href'], array('<nolink>', '<separator>'))) {
     $element = $variables['element'];
     $sub_menu = '';
-    $element['#attributes']['class'][] = $element['#href'];
     
     if ($element['#below']) {
       $sub_menu = drupal_render($element['#below']);
@@ -62,10 +61,13 @@ function special_menu_items_menu_link(array $variables) {
         $tag = variable_get('special_menu_items_nolink_tag', '<span>');
         $title = strip_tags(l($element['#title'], $element['#href'], $element['#localized_options']));
         $output = special_menu_items_render_menu_item($tag, $title);
+        $element['#attributes']['class'][] = 'nolink';
         break;
         
       case '<separator>':
         $output = variable_get('special_menu_items_separator_value', '<hr>');
+        $element['#attributes']['class'][] = 'separator';
+
         break;
     }
     
@@ -131,6 +133,8 @@ function special_menu_items_preprocess_page(&$vars, $hook) {
         unset($vars[$menu][$key]['attributes']['title']);
         unset($vars[$menu][$key]['href']);
       }
+        //unset($vars[$menu][$key]['attributes']['title']);
+
     }
   }
 }
